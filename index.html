@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Data Logger</title>
+    <script src="https://www.gstatic.com/firebasejs/9.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.10.0/firebase-database.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+
+<body>
+    <h1>Data Logger</h1>
+    <canvas id="dataChart" width="400" height="200"></canvas>
+    <script>
+        // Firebase configuration from your Firebase console
+        const firebaseConfig = {
+            apiKey: "AIzaSyCnpQQLZOLfKP_VXDOwUxOGDWXeoB6-x1I",
+            authDomain: "datalogger-f1e9a.firebaseapp.com",
+            databaseURL: "https://datalogger-f1e9a.firebaseio.com",
+            projectId: "datalogger-f1e9a",
+            storageBucket: "datalogger-f1e9a.appspot.com",
+            messagingSenderId: "125201355131",
+            appId: "1:125201355131:web:c19fcc59cebf38fe776dde"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+
+        // Initialize Chart.js
+        const ctx = document.getElementById('dataChart').getContext('2d');
+        const dataChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: [],
+                datasets: [{
+                    label: 'Sensor Data',
+                    data: [],
+                    backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                    borderColor: 'rgba(75, 192, 192, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                scales: {
+                    y: { beginAtZero: true }
+                }
+            }
+        });
+
+        // Listen to Firebase for data updates
+        db.ref('/sensorData').on('value', (snapshot) => {
+            const data = snapshot.val();
+            const labels = Object.keys(data);
+            const sensorValues = labels.map(key => data[key]);
+
+            dataChart.data.labels = labels;
+            dataChart.data.datasets[0].data = sensorValues;
+            dataChart.update();
+        });
+    </script>
+</body>
+
+</html>
